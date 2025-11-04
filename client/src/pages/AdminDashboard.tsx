@@ -20,6 +20,14 @@ const AdminDashboard: React.FC = () => {
           Create New College
         </a>
       </Link>
+<<<<<<< HEAD
+=======
+      <Link href="/admin/create">
+        <a className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mb-4 ml-4">
+          Create Shikshan Mantri
+        </a>
+      </Link>
+>>>>>>> df1c5ed (added github interation)
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {colleges?.map((college) => (

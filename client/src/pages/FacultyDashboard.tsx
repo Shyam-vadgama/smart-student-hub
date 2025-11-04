@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+import socket from '@/lib/socket';
+>>>>>>> df1c5ed (added github interation)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { User, Subject, Student } from '@shared/schema';
@@ -19,6 +24,24 @@ const FacultyDashboard: React.FC = () => {
   const [attendanceDate, setAttendanceDate] = useState('');
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
+<<<<<<< HEAD
+=======
+  // Real-time update: refetch on socket events
+  useEffect(() => {
+    function handleAttendanceUpdate() {
+      queryClient.invalidateQueries();
+    }
+    socket.on('attendance:update', handleAttendanceUpdate);
+    socket.on('marks:update', handleAttendanceUpdate);
+    socket.on('timetable:update', handleAttendanceUpdate);
+    return () => {
+      socket.off('attendance:update', handleAttendanceUpdate);
+      socket.off('marks:update', handleAttendanceUpdate);
+      socket.off('timetable:update', handleAttendanceUpdate);
+    };
+  }, [queryClient]);
+
+>>>>>>> df1c5ed (added github interation)
   // Subjects fetch karne ka code
   const { data: subjects, isLoading: subjectsLoading, error: subjectsError } = useQuery<Subject[]>({
     queryKey: ['/api/subjects/faculty', user?._id],

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+<<<<<<< HEAD
+=======
+import { useAuth } from '@/hooks/use-auth';
+>>>>>>> df1c5ed (added github interation)
 import { Subject, Classroom } from '@shared/schema';
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -13,6 +17,10 @@ import { Plus, X, BookOpen, Home } from "lucide-react";
 const CreateClassroom: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+<<<<<<< HEAD
+=======
+  const { user } = useAuth();
+>>>>>>> df1c5ed (added github interation)
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [name, setName] = useState('');
@@ -21,16 +29,35 @@ const CreateClassroom: React.FC = () => {
   const [showCreateSubject, setShowCreateSubject] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> df1c5ed (added github interation)
   // Fetch all subjects
   const { data: allSubjects, isLoading: isLoadingSubjects } = useQuery<Subject[]>({
     queryKey: ['/api/subjects'],
     queryFn: () => apiRequest('GET', '/api/subjects').then((res) => res.json()),
   });
 
+<<<<<<< HEAD
   // Fetch all classrooms
   const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[]>({
     queryKey: ['/api/classrooms'],
     queryFn: () => apiRequest('GET', '/api/classrooms').then((res) => res.json()),
+=======
+  const { data: departments, isLoading: isLoadingDepartments } = useQuery<any[]>({
+    queryKey: ['/api/departments/hod'],
+    queryFn: () => apiRequest('GET', '/api/departments/hod').then((res) => res.json()),
+  });
+
+  // Fetch all classrooms
+  const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[]>({
+    queryKey: ['/api/classrooms'],
+    queryFn: () => {
+      const url = '/api/classrooms';
+      return apiRequest('GET', url).then((res) => res.json());
+    },
+>>>>>>> df1c5ed (added github interation)
   });
 
   // Create classroom mutation
@@ -55,9 +82,13 @@ const CreateClassroom: React.FC = () => {
         variant: 'destructive',
       });
     },
+<<<<<<< HEAD
   });
 
   // Create subject mutation
+=======
+  });  // Create subject mutation
+>>>>>>> df1c5ed (added github interation)
   const createSubjectMutation = useMutation({
     mutationFn: (data: { name: string }) =>
       apiRequest('POST', '/api/subjects', data),
@@ -100,6 +131,7 @@ const CreateClassroom: React.FC = () => {
       return;
     }
 
+<<<<<<< HEAD
     if (subjects.length === 0) {
       toast({
         title: 'Validation Error',
@@ -109,6 +141,8 @@ const CreateClassroom: React.FC = () => {
       return;
     }
 
+=======
+>>>>>>> df1c5ed (added github interation)
     createClassroomMutation.mutate({ name, subjects });
   };
 
@@ -158,6 +192,10 @@ const CreateClassroom: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Existing Classrooms</h2>
                 <div className="flex items-center space-x-4">
+<<<<<<< HEAD
+=======
+
+>>>>>>> df1c5ed (added github interation)
                   <Badge className="bg-gray-100 text-gray-800">
                     {classrooms?.length || 0} classrooms
                   </Badge>
@@ -262,6 +300,7 @@ const CreateClassroom: React.FC = () => {
                         />
                       </div>
 
+<<<<<<< HEAD
                       {/* Subjects Section */}
                       <div className="bg-gray-50 p-5 rounded-lg">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
@@ -342,6 +381,32 @@ const CreateClassroom: React.FC = () => {
                         )}
                       </div>
 
+=======
+
+
+                      {/* Subject Selection */}
+                      <div>
+                        <label htmlFor="subjects" className="block text-sm font-medium text-gray-700 mb-1">
+                          Subjects
+                        </label>
+                        <select
+                          id="subjects"
+                          multiple
+                          value={subjects}
+                          onChange={(e) => setSubjects(Array.from(e.target.selectedOptions, (option) => option.value))}
+                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                        >
+                          {allSubjects?.map((subject) => (
+                            <option key={subject._id} value={subject._id}>
+                              {subject.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+
+
+>>>>>>> df1c5ed (added github interation)
                       {/* Submit Button */}
                       <div className="pt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
                         <button

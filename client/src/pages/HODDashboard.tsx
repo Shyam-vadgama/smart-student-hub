@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React, { useState, useMemo } from 'react';
+=======
+import React, { useState, useMemo, useEffect } from 'react';
+import socket from '@/lib/socket';
+>>>>>>> df1c5ed (added github interation)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { User } from '@shared/schema';
@@ -11,18 +16,47 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+<<<<<<< HEAD
+=======
+import { Textarea } from "@/components/ui/textarea";
+>>>>>>> df1c5ed (added github interation)
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+<<<<<<< HEAD
 import { UserPlus, Users, Link, Trash2, Calendar, BookOpen, CheckCircle, XCircle, BarChart3, UserCheck, AlertTriangle, Award, Download, FileSpreadsheet, Filter, Search, ChevronDown, TrendingUp, TrendingDown, Activity, Eye, EyeOff, RefreshCw, Settings, MoreHorizontal, PieChart, GraduationCap, UserMinus, Clock, Target } from "lucide-react";
+=======
+import { UserPlus, Users, Link, Trash2, Calendar, BookOpen, CheckCircle, XCircle, BarChart3, UserCheck, AlertTriangle, Award, Download, FileSpreadsheet, Filter, Search, ChevronDown, TrendingUp, TrendingDown, Activity, Eye, EyeOff, RefreshCw, Settings, MoreHorizontal, PieChart, GraduationCap, UserMinus, Clock, Target, MessageSquare, Send } from "lucide-react";
+>>>>>>> df1c5ed (added github interation)
 import CreateStudent from '@/components/CreateStudent';
 import StudentList from '@/components/StudentList';
 import TimetableManager from '@/components/TimetableManager';
 import * as XLSX from 'xlsx';
 
+<<<<<<< HEAD
+=======
+interface IHODMessage {
+  _id: string;
+  sender: { _id: string; name: string; email: string; department: { _id: string; name: string } };
+  recipient: { _id: string; name: string; email: string; department: { _id: string; name: string } };
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  sharedStudents?: { _id: string; name: string; email: string; semester: number }[];
+  sharedSubjects?: { _id: string; name: string; semester: number }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UserWithDepartment extends User {
+  department?: { _id: string; name: string };
+  college?: string;
+  semester?: number;
+}
+
+>>>>>>> df1c5ed (added github interation)
 const HODDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -43,6 +77,14 @@ const HODDashboard: React.FC = () => {
   const [newStudentBatch, setNewStudentBatch] = useState('');
   const [newStudentDepartment, setNewStudentDepartment] = useState('');
     
+<<<<<<< HEAD
+=======
+  // HOD Communication states
+  const [selectedRecipientId, setSelectedRecipientId] = useState('');
+  const [messageContent, setMessageContent] = useState('');
+  const [isSendMessageDialogOpen, setIsSendMessageDialogOpen] = useState(false);
+
+>>>>>>> df1c5ed (added github interation)
   // Enhanced filter states
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState("all");
@@ -69,6 +111,24 @@ const HODDashboard: React.FC = () => {
   const [showAnalytics, setShowAnalytics] = useState(true);
   const [compactView, setCompactView] = useState(false);
 
+<<<<<<< HEAD
+=======
+  // Real-time update: refetch on socket events
+  useEffect(() => {
+    function handleAttendanceUpdate() {
+      window.location.reload(); // For demo: reload page on update
+    }
+    socket.on('attendance:update', handleAttendanceUpdate);
+    socket.on('marks:update', handleAttendanceUpdate);
+    socket.on('timetable:update', handleAttendanceUpdate);
+    return () => {
+      socket.off('attendance:update', handleAttendanceUpdate);
+      socket.off('marks:update', handleAttendanceUpdate);
+      socket.off('timetable:update', handleAttendanceUpdate);
+    };
+  }, []);
+
+>>>>>>> df1c5ed (added github interation)
   // Timetable creation states
   const [timetableSemester, setTimetableSemester] = useState('');
   const [timetableSchedule, setTimetableSchedule] = useState<any[]>([]);
@@ -130,6 +190,65 @@ const HODDashboard: React.FC = () => {
     enabled: !!user && user.role === 'hod' && !!user.department,
   });
 
+<<<<<<< HEAD
+=======
+  // Fetch other HODs for collaboration
+  const { data: otherHods = [], isLoading: isLoadingOtherHods } = useQuery<User[]>({
+    queryKey: ['/api/hods/other-departments', user?._id],
+    queryFn: () => apiRequest('GET', '/api/hods/other-departments').then(res => res.json()),
+    enabled: !!user && user.role === 'hod',
+  });
+
+  // Fetch HOD messages
+  const { data: hodMessages = [], isLoading: isLoadingHodMessages, refetch: refetchHodMessages } = useQuery<IHODMessage[]>({
+    queryKey: ['/api/hods/messages', user?._id],
+    queryFn: () => apiRequest('GET', '/api/hods/messages').then(res => res.json()),
+    enabled: !!user && user.role === 'hod',
+  });
+
+  // Mutation to send a message to another HOD
+  const sendMessageMutation = useMutation({
+    mutationFn: (data: { recipient: string; message: string; sharedStudents?: string[]; sharedSubjects?: string[] }) =>
+      apiRequest('POST', '/api/hods/send-message', data),
+    onSuccess: () => {
+      toast({ title: 'Message sent successfully!' });
+      setMessageContent('');
+      setSelectedRecipientId('');
+      setIsSendMessageDialogOpen(false);
+      refetchHodMessages(); // Refetch messages to show the sent message
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error sending message', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRecipientId || !messageContent.trim()) {
+      toast({ title: 'Please select a recipient and type a message', variant: 'destructive' });
+      return;
+    }
+    sendMessageMutation.mutate({ recipient: selectedRecipientId, message: messageContent });
+  };
+
+  // Mutation to respond to a message
+  const respondToMessageMutation = useMutation({
+    mutationFn: (data: { messageId: string; status: 'accepted' | 'rejected' }) =>
+      apiRequest('POST', `/api/hods/message/${data.messageId}/respond`, { status: data.status }),
+    onSuccess: () => {
+      toast({ title: 'Message response sent!' });
+      refetchHodMessages(); // Refetch messages to update their status
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error responding to message', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleRespondToMessage = (messageId: string, status: 'accepted' | 'rejected') => {
+    respondToMessageMutation.mutate({ messageId, status });
+  };
+
+>>>>>>> df1c5ed (added github interation)
   // Enhanced filtering and search functionality
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -747,6 +866,15 @@ const HODDashboard: React.FC = () => {
                     >
                       Timetable
                     </TabsTrigger>
+<<<<<<< HEAD
+=======
+                    <TabsTrigger 
+                      value="collaboration" 
+                      className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-medium transition-all"
+                    >
+                      Collaboration
+                    </TabsTrigger>
+>>>>>>> df1c5ed (added github interation)
                   </TabsList>
 
                   <div className="flex items-center gap-2 w-full lg:w-auto">
@@ -2082,6 +2210,158 @@ const HODDashboard: React.FC = () => {
                 <TabsContent value="timetable" className="p-6">
                   <TimetableManager />
                 </TabsContent>
+<<<<<<< HEAD
+=======
+
+                {/* Collaboration Tab */}
+                <TabsContent value="collaboration" className="p-6 space-y-6">
+                  <h2 className="text-xl font-semibold text-gray-900">HOD Collaboration</h2>
+                  <p className="text-gray-600">Communicate and share resources with other department HODs.</p>
+
+                  {/* Section for other HODs */}
+                  <Card className="shadow-sm border border-gray-200">
+                    <CardHeader>
+                      <CardTitle>Other Department HODs</CardTitle>
+                      <CardDescription>Connect with HODs from other departments in your college.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingOtherHods ? (
+                        <p>Loading other HODs...</p>
+                      ) : otherHods.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {otherHods.map((hod) => (
+                            <div key={hod._id} className="flex items-center space-x-3 p-3 border rounded-md bg-gray-50">
+                              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                                {getUserInitials(hod.name)}
+                              </div>
+                              <div>
+                                <p className="font-medium">{hod.name}</p>
+                                <p className="text-sm text-gray-600">{hod.department?.name || 'N/A'}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>No other HODs found in your college.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Send Message Section */}
+                  <Card className="shadow-sm border border-gray-200">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle>Send a Message</CardTitle>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="flex items-center gap-2">
+                            <Send className="h-4 w-4" />
+                            New Message
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Compose New Message</DialogTitle>
+                            <DialogDescription>Send a message to another HOD.</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleSendMessage} className="space-y-4">
+                            <div>
+                              <Label htmlFor="recipient">Recipient HOD</Label>
+                              <Select value={selectedRecipientId} onValueChange={setSelectedRecipientId}>
+                                <SelectTrigger id="recipient">
+                                  <SelectValue placeholder="Select recipient HOD" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {otherHods.map((hod) => (
+                                    <SelectItem key={hod._id} value={hod._id}>
+                                      {hod.name} ({hod.department?.name})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="messageContent">Message</Label>
+                              <Textarea
+                                id="messageContent"
+                                value={messageContent}
+                                onChange={(e) => setMessageContent(e.target.value)}
+                                placeholder="Type your message here..."
+                                rows={5}
+                                required
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button type="submit" disabled={sendMessageMutation.isPending}>
+                                {sendMessageMutation.isPending ? 'Sending...' : 'Send Message'}
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600">Click 'New Message' to start a conversation.</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Section for Messages */}
+                  <Card className="shadow-sm border border-gray-200">
+                    <CardHeader>
+                      <CardTitle>My Messages</CardTitle>
+                      <CardDescription>View and respond to messages from other HODs.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingHodMessages ? (
+                        <p>Loading messages...</p>
+                      ) : hodMessages.length > 0 ? (
+                        <div className="space-y-4">
+                          {hodMessages.map((msg) => (
+                            <div key={msg._id} className="p-4 border rounded-md bg-gray-50">
+                              <div className="flex justify-between items-center mb-2">
+                                <p className="font-medium">
+                                  {msg.sender._id === user?._id ? 'To' : 'From'}: {msg.sender._id === user?._id ? msg.recipient.name : msg.sender.name} ({msg.sender._id === user?._id ? msg.recipient.department.name : msg.sender.department.name})
+                                </p>
+                                <Badge variant={msg.status === 'accepted' ? 'default' : msg.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                  {msg.status}
+                                </Badge>
+                              </div>
+                              <p className="text-gray-700 mb-2">{msg.message}</p>
+                              {msg.sharedStudents && msg.sharedStudents.length > 0 && (
+                                <div className="mt-2">
+                                  <p className="text-sm font-medium">Shared Students:</p>
+                                  <ul className="list-disc list-inside text-sm text-gray-600">
+                                    {msg.sharedStudents.map(student => (
+                                      <li key={student._id}>{student.name} ({student.email}) - Semester {student.semester}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {msg.sharedSubjects && msg.sharedSubjects.length > 0 && (
+                                <div className="mt-2">
+                                  <p className="text-sm font-medium">Shared Subjects:</p>
+                                  <ul className="list-disc list-inside text-sm text-gray-600">
+                                    {msg.sharedSubjects.map(subject => (
+                                      <li key={subject._id}>{subject.name} - Semester {subject.semester}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {msg.recipient._id === user?._id && msg.status === 'pending' && (
+                                <div className="flex gap-2 mt-3">
+                                  <Button size="sm" variant="outline" onClick={() => handleRespondToMessage(msg._id, 'accepted')}>Accept</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => handleRespondToMessage(msg._id, 'rejected')}>Reject</Button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>No messages found.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+>>>>>>> df1c5ed (added github interation)
               </Tabs>
             </div>
           </div>

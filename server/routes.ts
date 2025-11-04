@@ -32,6 +32,11 @@ import Subject from './models/Subject';
 import Marks from './models/Marks';
 import Attendance from './models/Attendance';
 import Timetable from './models/Timetable';
+<<<<<<< HEAD
+=======
+import Timetable from './models/Timetable';
+import HODMessage from './models/HODMessage';
+>>>>>>> df1c5ed (added github interation)
 import crypto from 'crypto';
 import mongoose from "mongoose";
 // use global fetch available in Node 18+
@@ -42,6 +47,7 @@ interface AuthRequest extends Request {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  console.log('--- REGISTERING ROUTES ---');
   // Using in-memory storage for compatibility
   app.get('/api/users/faculty', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
@@ -282,6 +288,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: fullUser?.email || req.user.email,
         role: fullUser?.role || req.user.role,
         department: (fullUser as any)?.department || (req.user as any).department,
+<<<<<<< HEAD
+=======
+        semester: fullUser?.semester || (req.user as any).semester,
+>>>>>>> df1c5ed (added github interation)
         profile: fullUser?.profile || req.user.profile
       });
     }).catch(() => {
@@ -292,6 +302,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: req.user.email,
         role: req.user.role,
         department: (req.user as any).department,
+<<<<<<< HEAD
+=======
+        semester: (req.user as any).semester,
+>>>>>>> df1c5ed (added github interation)
         profile: req.user.profile
       });
     });
@@ -862,6 +876,69 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
   });
 
   // File serving
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      console.log('--- FORGOT PASSWORD REQUEST ---');
+      console.log('Forgot password request received:', req.body);
+      const { email } = req.body;
+      const user = await UserModel.findOne({ email });
+      console.log('User found:', user);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+      await user.save();
+
+      const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+      console.log(`
+
+
+--- !!! PASSWORD RESET URL FOR ${email} !!! ---
+
+`);
+      console.log(resetUrl);
+      console.log(`
+--- !!! END OF PASSWORD RESET URL !!! ---
+
+
+`);
+      res.status(200).json({ message: 'Password reset link sent to your email' });
+    } catch (error) {
+      console.error('Error in forgot password:', error);
+      res.status(500).json({ message: 'Error in forgot password' });
+    }
+  });
+
+  app.post('/api/reset-password', async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      const user = await UserModel.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+      }
+
+      user.password = await bcrypt.hash(password, 12);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+
+      await user.save();
+
+      res.status(200).json({ message: 'Password has been reset.' });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ message: 'Error resetting password' });
+    }
+  });
+
   app.use('/uploads', authMiddleware, (req, res, next) => {
     const filePath = path.join(process.cwd(), 'uploads', req.path);
     res.sendFile(filePath);
@@ -1231,10 +1308,17 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
 
   app.post('/api/users/create-student', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
+<<<<<<< HEAD
       const { name, email, semester, course, batch, department } = req.body;
 
       if (!name || !email) {
         return res.status(400).json({ message: 'Name and email are required' });
+=======
+      const { name, email, semester, course, batch } = req.body;
+
+      if (!name || !email || !semester) {
+        return res.status(400).json({ message: 'Name, email, and semester are required' });
+>>>>>>> df1c5ed (added github interation)
       }
 
       const hod = await UserModel.findById(req.user._id);
@@ -1255,8 +1339,14 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         email,
         password: hashedPassword,
         role: 'student',
+<<<<<<< HEAD
         department: department || hod.department,
         college: hod.college,
+=======
+        department: hod.department,
+        college: hod.college,
+        semester: parseInt(semester),
+>>>>>>> df1c5ed (added github interation)
       });
 
       await newUser.save();
@@ -1264,17 +1354,29 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       // Create profile with batch information
       const newProfile = new ProfileModel({
         user: newUser._id,
+<<<<<<< HEAD
         semester: semester || undefined,
         course: course || undefined,
         batch: batch || undefined,
         department: department || hod.department,
+=======
+        semester: parseInt(semester),
+        course: course || undefined,
+        batch: batch || undefined,
+        department: hod.department,
+>>>>>>> df1c5ed (added github interation)
       });
 
       await newProfile.save();
 
       // Update user with profile reference
       await UserModel.findByIdAndUpdate(newUser._id, {
+<<<<<<< HEAD
         profile: newProfile._id
+=======
+        profile: newProfile._id,
+        semester: newUser.semester,
+>>>>>>> df1c5ed (added github interation)
       });
 
       const resetToken = crypto.randomBytes(20).toString('hex');
@@ -1297,6 +1399,10 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
           role: newUser.role,
           department: newUser.department,
           college: newUser.college,
+<<<<<<< HEAD
+=======
+          semester: newUser.semester,
+>>>>>>> df1c5ed (added github interation)
           profile: {
             _id: newProfile._id,
             semester: newProfile.semester,
@@ -1378,6 +1484,27 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
     }
   });
 
+<<<<<<< HEAD
+=======
+  app.get('/api/departments/hod', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+    try {
+      const hod = await UserModel.findById(req.user._id);
+      if (!hod || !hod.college) {
+        return res.status(403).json({ message: 'Access denied. HOD must be associated with a college.' });
+      }
+
+      const departments = await Department.find({ college: hod.college })
+        .populate('hod', 'name email')
+        .sort({ name: 1 });
+
+      res.status(200).json(departments);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      res.status(500).json({ message: 'Error fetching departments', error: (error as Error).message });
+    }
+  });
+
+>>>>>>> df1c5ed (added github interation)
   // Get HODs for principal dashboard
     app.get('/api/hods/principal', authMiddleware, checkRole(['principal']), async (req: AuthRequest, res) => {
       try {
@@ -1393,12 +1520,561 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         .populate('department', 'name')
         .sort({ name: 1 });
   
+<<<<<<< HEAD
         res.status(200).json(hods);
       } catch (error) {
         console.error('Error fetching HODs:', error);
         res.status(500).json({ message: 'Error fetching HODs', error: (error as Error).message });
       }
     });
+=======
+              res.status(200).json(hods);
+            } catch (error) {
+              console.error('Error fetching HODs:', error);
+              res.status(500).json({ message: 'Error fetching HODs', error: (error as Error).message });
+            }
+          });
+        
+          app.get('/api/hods/other-departments', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+            try {
+              const currentHod = await UserModel.findById(req.user._id);
+              if (!currentHod || !currentHod.college || !currentHod.department) {
+                return res.status(403).json({ message: 'Access denied. HOD must be associated with a college and department.' });
+              }
+        
+              const otherHods = await UserModel.find({
+                role: 'hod',
+                college: currentHod.college,
+                _id: { $ne: currentHod._id }, // Exclude the current HOD
+              }).select('name email department').populate('department', 'name');
+        
+                    res.status(200).json(otherHods);
+        
+                  } catch (error) {
+        
+                    console.error('Error fetching other HODs:', error);
+        
+                    res.status(500).json({ message: 'Error fetching other HODs' });
+        
+                  }
+        
+                });
+        
+              
+        
+                app.post('/api/hods/send-message', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+        
+                  try {
+        
+                    const { recipient, message, sharedStudents, sharedSubjects } = req.body;
+        
+              
+        
+                    if (!recipient || !message) {
+        
+                      return res.status(400).json({ message: 'Recipient and message are required' });
+        
+                    }
+        
+              
+        
+                    const senderHod = await UserModel.findById(req.user._id);
+        
+                    const recipientHod = await UserModel.findById(recipient);
+        
+              
+        
+                    if (!senderHod || !recipientHod || recipientHod.role !== 'hod') {
+        
+                      return res.status(404).json({ message: 'Sender or recipient HOD not found' });
+        
+                    }
+        
+              
+        
+                    const newHODMessage = new HODMessage({
+        
+                      sender: senderHod._id,
+        
+                      recipient: recipientHod._id,
+        
+                      message,
+        
+                      sharedStudents: sharedStudents || [],
+        
+                      sharedSubjects: sharedSubjects || [],
+        
+                    });
+        
+              
+        
+                          await newHODMessage.save();
+        
+              
+        
+                          res.status(201).json(newHODMessage);
+        
+              
+        
+                        } catch (error) {
+        
+              
+        
+                          console.error('Error sending HOD message:', error);
+        
+              
+        
+                          res.status(500).json({ message: 'Error sending HOD message' });
+        
+              
+        
+                        }
+        
+              
+        
+                      });
+        
+              
+        
+                    
+        
+              
+        
+                      app.get('/api/hods/messages', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+        
+              
+        
+                        try {
+        
+              
+        
+                          const hodMessages = await HODMessage.find({
+        
+              
+        
+                            $or: [
+        
+              
+        
+                              { sender: req.user._id },
+        
+              
+        
+                              { recipient: req.user._id },
+        
+              
+        
+                            ],
+        
+              
+        
+                          })
+        
+              
+        
+                            .populate('sender', 'name email department')
+        
+              
+        
+                            .populate('recipient', 'name email department')
+        
+              
+        
+                            .populate('sharedStudents', 'name email semester')
+        
+              
+        
+                            .populate('sharedSubjects', 'name semester')
+        
+              
+        
+                            .sort({ createdAt: -1 });
+        
+              
+        
+                    
+        
+              
+        
+                                res.status(200).json(hodMessages);
+        
+              
+        
+                    
+        
+              
+        
+                              } catch (error) {
+        
+              
+        
+                    
+        
+              
+        
+                                console.error('Error fetching HOD messages:', error);
+        
+              
+        
+                    
+        
+              
+        
+                                res.status(500).json({ message: 'Error fetching HOD messages' });
+        
+              
+        
+                    
+        
+              
+        
+                              }
+        
+              
+        
+                    
+        
+              
+        
+                            });
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                            app.post('/api/hods/message/:id/respond', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+        
+              
+        
+                    
+        
+              
+        
+                              try {
+        
+              
+        
+                    
+        
+              
+        
+                                const { id } = req.params;
+        
+              
+        
+                    
+        
+              
+        
+                                const { status, responseMessage } = req.body;
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                if (!status || !['accepted', 'rejected'].includes(status)) {
+        
+              
+        
+                    
+        
+              
+        
+                                  return res.status(400).json({ message: 'Invalid status provided' });
+        
+              
+        
+                    
+        
+              
+        
+                                }
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                const hodMessage = await HODMessage.findById(id);
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                if (!hodMessage) {
+        
+              
+        
+                    
+        
+              
+        
+                                  return res.status(404).json({ message: 'Message not found' });
+        
+              
+        
+                    
+        
+              
+        
+                                }
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                // Only the recipient can respond to a message
+        
+              
+        
+                    
+        
+              
+        
+                                if (hodMessage.recipient.toString() !== req.user._id.toString()) {
+        
+              
+        
+                    
+        
+              
+        
+                                  return res.status(403).json({ message: 'Access denied. You can only respond to messages sent to you.' });
+        
+              
+        
+                    
+        
+              
+        
+                                }
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                hodMessage.status = status;
+        
+              
+        
+                    
+        
+              
+        
+                                // Optionally add a response message to the original message or create a new one
+        
+              
+        
+                    
+        
+              
+        
+                                // For simplicity, we'll just update the status here.
+        
+              
+        
+                    
+        
+              
+        
+                                // A more complex system might create a new message as a reply.
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                                await hodMessage.save();
+        
+              
+        
+                    
+        
+              
+        
+                                res.status(200).json(hodMessage);
+        
+              
+        
+                    
+        
+              
+        
+                              } catch (error) {
+        
+              
+        
+                    
+        
+              
+        
+                                console.error('Error responding to HOD message:', error);
+        
+              
+        
+                    
+        
+              
+        
+                                res.status(500).json({ message: 'Error responding to HOD message' });
+        
+              
+        
+                    
+        
+              
+        
+                              }
+        
+              
+        
+                    
+        
+              
+        
+                            });
+        
+              
+        
+                    
+        
+              
+        
+                          
+        
+              
+        
+                    
+        
+              
+        
+                            app.post('/api/temp-create-shikshan-mantri', async (req, res) => {    try {
+      const { name, email, password } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Name, email, and password are required' });
+      }
+
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const newUser = new UserModel({
+        name,
+        email,
+        password: hashedPassword,
+        role: 'shiksan_mantri',
+      });
+
+      await newUser.save();
+
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      newUser.resetPasswordToken = resetToken;
+      newUser.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+      await newUser.save();
+
+      const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+      console.log(`--- PASSWORD RESET URL FOR ${email} ---`);
+      console.log(resetUrl);
+
+      res.status(201).json({ message: 'Shikshan Mantri created successfully.', user: newUser });
+    } catch (error) {
+      console.error('Error creating Shikshan Mantri:', error);
+      res.status(500).json({ message: 'Error creating Shikshan Mantri' });
+    }
+  });
+
+  app.get('/api/faculty/hod', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+    try {
+      const hod = await UserModel.findById(req.user._id);
+      if (!hod || !hod.department) {
+        return res.status(403).json({ message: 'Access denied. HOD must be associated with a department.' });
+      }
+
+      const faculty = await UserModel.find({
+        role: 'faculty',
+        department: hod.department,
+      }).select('-password');
+
+      res.status(200).json(faculty);
+    } catch (error) {
+      console.error('Error fetching faculty:', error);
+      res.status(500).json({ message: 'Error fetching faculty' });
+    }
+  });
+>>>>>>> df1c5ed (added github interation)
   
     
   // Create department with HOD in one go (comprehensive endpoint)
@@ -1436,6 +2112,7 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         name: departmentName, 
         college: principalUser.college 
       });
+<<<<<<< HEAD
       
       await department.save();
       console.log('Department created:', department._id);
@@ -1445,12 +2122,25 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       
       // Create HOD user directly using UserModel
       const hashedPassword = await bcrypt.hash(password, 12);
+=======
+      await department.save();
+
+      // Generate random password for HOD
+      const password = crypto.randomBytes(10).toString('hex');
+      const hashedPassword = await bcrypt.hash(password, 12);
+      console.log('Hashed password:', hashedPassword);
+
+>>>>>>> df1c5ed (added github interation)
       const hodUser = new UserModel({
         name: hodName,
         email: hodEmail,
         password: hashedPassword,
         role: 'hod',
+<<<<<<< HEAD
         department: (department._id as any).toString(),
+=======
+        department: department._id, // Assign the department ID
+>>>>>>> df1c5ed (added github interation)
         college: principalUser.college
       });
       
@@ -1636,6 +2326,7 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
     }
   });
 
+<<<<<<< HEAD
   app.post('/api/classrooms/:id/assign-subjects', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
       const { subjects } = req.body;
@@ -1655,6 +2346,32 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       res.status(200).json(classroom);
     } catch (error) {
       res.status(500).json({ message: 'Error assigning subjects to classroom' });
+=======
+  app.post('/api/subjects', authMiddleware, checkRole(['hod', 'faculty']), async (req: AuthRequest, res) => {
+    try {
+      const { name, classroom, semester } = req.body;
+      const user = await UserModel.findById(req.user._id);
+
+      if (!user || (!user.department && user.role !== 'shiksan_mantri')) {
+        return res.status(400).json({ message: 'User not associated with a department' });
+      }
+
+      if (!semester) {
+        return res.status(400).json({ message: 'Semester is required' });
+      }
+
+      const department = user.department; // Get department from the HOD/Faculty creating the subject
+
+      const subject = new Subject({ name, faculty: req.user._id, classroom, department, semester: parseInt(semester), createdBy: req.user._id });
+      await subject.save();
+
+      // Update the classroom with the new subject
+      await Classroom.findByIdAndUpdate(classroom, { $push: { subjects: subject._id } });
+
+      res.status(201).json(subject);
+    } catch (error) {
+      res.status(500).json({ message: 'Error creating subject' });
+>>>>>>> df1c5ed (added github interation)
     }
   });
 
@@ -1671,12 +2388,126 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
 
       const subject = new Subject({ name, faculty: req.user._id, classroom, department, createdBy: req.user._id });
       await subject.save();
+<<<<<<< HEAD
+=======
+
+      // Update the classroom with the new subject
+      await Classroom.findByIdAndUpdate(classroom, { $push: { subjects: subject._id } });
+
+>>>>>>> df1c5ed (added github interation)
       res.status(201).json(subject);
     } catch (error) {
       res.status(500).json({ message: 'Error creating subject' });
     }
   });
 
+<<<<<<< HEAD
+=======
+  // Timetable routes
+  app.post('/api/timetables', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
+    try {
+      const { classroom, subject, faculty, day, startTime, endTime } = req.body;
+
+      if (!classroom || !subject || !faculty || !day || !startTime || !endTime) {
+        return res.status(400).json({ message: 'All timetable fields are required' });
+      }
+
+      // Check if the HOD is associated with the classroom's department
+      const hod = await UserModel.findById(req.user._id);
+      const targetClassroom = await Classroom.findById(classroom);
+
+      if (!hod || !targetClassroom || hod.department.toString() !== targetClassroom.department.toString()) {
+        return res.status(403).json({ message: 'Access denied. You can only create timetables for classrooms in your department.' });
+      }
+
+      // Check for time conflicts within the same classroom and day
+      const existingTimetableEntries = await Timetable.find({
+        classroom,
+        day,
+        $or: [
+          { startTime: { $lt: endTime, $gte: startTime } }, // New entry starts during existing one
+          { endTime: { $gt: startTime, $lte: endTime } },   // New entry ends during existing one
+          { startTime: { $lte: startTime }, endTime: { $gte: endTime } } // Existing entry covers new one
+        ]
+      })
+      .populate('subject', 'name')
+      .populate('faculty', 'name');
+
+      if (existingTimetableEntries.length > 0) {
+        const conflictingEntry = existingTimetableEntries[0];
+        const conflictingSubjectName = (conflictingEntry.subject as any)?.name || 'Unknown Subject';
+        const conflictingFacultyName = (conflictingEntry.faculty as any)?.name || 'Unknown Faculty';
+        const conflictingStartTime = conflictingEntry.startTime;
+        const conflictingEndTime = conflictingEntry.endTime;
+
+        return res.status(409).json({
+          message: `Time conflict: ${conflictingSubjectName} with ${conflictingFacultyName} is already scheduled from ${conflictingStartTime} to ${conflictingEndTime} in this classroom on ${day}.`
+        });
+      }
+
+      const newTimetableEntry = new Timetable({
+        classroom,
+        subject,
+        faculty,
+        day,
+        startTime,
+        endTime,
+      });
+
+      await newTimetableEntry.save();
+      res.status(201).json(newTimetableEntry);
+    } catch (error) {
+      console.error('Error creating timetable entry:', error);
+      res.status(500).json({ message: 'Error creating timetable entry' });
+    }
+  });
+
+  app.get('/api/timetables/:classroomId', authMiddleware, checkRole(['hod', 'faculty', 'student']), async (req: AuthRequest, res) => {
+    try {
+      const { classroomId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(classroomId)) {
+        return res.status(400).json({ message: 'Invalid classroom ID format.' });
+      }
+
+      const timetableEntries = await Timetable.find({ classroom: classroomId })
+        .populate('subject', 'name')
+        .populate('faculty', 'name email')
+        .sort({ day: 1, startTime: 1 });
+
+      res.status(200).json(timetableEntries);
+    } catch (error) {
+      console.error('Error fetching timetable entries:', error);
+      res.status(500).json({ message: 'Error fetching timetable entries' });
+    }
+  });
+
+  app.get('/api/timetables/student/:semester', authMiddleware, checkRole(['student']), async (req: AuthRequest, res) => {
+    try {
+      const { semester } = req.params;
+      const student = await UserModel.findById(req.user._id);
+
+      if (!student || !student.department) {
+        return res.status(403).json({ message: 'Access denied. Student not associated with a department.' });
+      }
+
+      const timetableEntries = await Timetable.find({
+        classroom: { $in: await Classroom.find({ department: student.department }).select('_id') }, // Filter by classrooms in student's department
+        semester: parseInt(semester),
+      })
+        .populate('subject', 'name')
+        .populate('faculty', 'name')
+        .populate('classroom', 'name')
+        .sort({ day: 1, startTime: 1 });
+
+      res.status(200).json(timetableEntries);
+    } catch (error) {
+      console.error('Error fetching student timetable entries:', error);
+      res.status(500).json({ message: 'Error fetching student timetable entries' });
+    }
+  });
+
+>>>>>>> df1c5ed (added github interation)
   app.get('/api/subjects', authMiddleware, async (req: AuthRequest, res) => {
     try {
       const user = await UserModel.findById(req.user._id);
@@ -1898,11 +2729,19 @@ app.get('/api/principal/departments', authMiddleware, checkRole(['principal']), 
 
   app.get('/api/classrooms', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
+<<<<<<< HEAD
       const user = await storage.getUser(req.user._id);
       if (!user || !user.department) {
         return res.status(400).json({ message: 'User not associated with a department' });
       }
       const classrooms = await Classroom.find({ department: user.department });
+=======
+      const hod = await UserModel.findById(req.user._id);
+      if (!hod || !hod.department) {
+        return res.status(400).json({ message: 'HOD not associated with a department' });
+      }
+      const classrooms = await Classroom.find({ department: hod.department }).populate('subjects');
+>>>>>>> df1c5ed (added github interation)
       res.status(200).json(classrooms);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching classrooms' });
@@ -2645,6 +3484,17 @@ app.get('/api/users/students', authMiddleware, checkRole(['hod']), async (req: A
       res.status(500).json({ message: 'Error sending message to authority' });
     }
   });
+<<<<<<< HEAD
+=======
+
+  // Project Management Routes
+  const projectRoutes = await import('./routes/projectRoutes.js');
+  app.use('/api/projects', authMiddleware, checkRole(['student', 'faculty', 'hod']), projectRoutes.default);
+
+  // Integration Routes (GitHub & Vercel)
+  const integrationRoutes = await import('./routes/integrationRoutes.js');
+  app.use('/api/integrations', authMiddleware, checkRole(['student']), integrationRoutes.default);
+>>>>>>> df1c5ed (added github interation)
 
   const httpServer = createServer(app);
   return httpServer;

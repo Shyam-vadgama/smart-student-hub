@@ -73,6 +73,9 @@ const LinkedInLeftSidebar = () => {
             <Package size={20} />
             My Items
           </a>
+          <a href="/temp-admin-create">
+            Create Admin (Temp)
+          </a>
           <a href="#">
             <Crown size={20} />
             Try Premium

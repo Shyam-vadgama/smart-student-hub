@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider } from "@/hooks/use-auth.tsx";
 import { ProtectedRoute } from "./lib/protected-route";
 import LinkedInLayout from "@/components/LinkedInLayout";
 import NotFound from "@/pages/not-found";
@@ -44,6 +44,14 @@ import FacultyDashboard from "@/pages/FacultyDashboard";
 import StudentDashboard from "@/pages/StudentDashboard";
 import HODDashboard from "@/pages/HODDashboard";
 import AttendancePage from "@/pages/attendance-page";
+<<<<<<< HEAD
+=======
+import CreateAdmin from "@/pages/CreateAdmin";
+import TempCreateAdmin from "@/pages/TempCreateAdmin";
+import TempCreateShikshanMantri from "@/pages/TempCreateShikshanMantri";
+import ForgotPassword from "@/pages/ForgotPassword";
+import CreateTimetable from "@/pages/CreateTimetable";
+>>>>>>> df1c5ed (added github interation)
 
 
 // Wrapper components to ensure they always return an element
@@ -153,6 +161,26 @@ const AttendanceWrapper = () => {
   return <AttendancePage />;
 };
 
+<<<<<<< HEAD
+=======
+const CreateAdminWrapper = () => {
+  return <CreateAdmin />;
+};
+
+const TempCreateAdminWrapper = () => {
+  return <TempCreateAdmin />;
+};
+
+const TempCreateShikshanMantriWrapper = () => {
+  return <TempCreateShikshanMantri />;
+};
+
+const CreateTimetableWrapper = () => {
+  return <CreateTimetable />;
+};
+
+
+>>>>>>> df1c5ed (added github interation)
 
 
 
@@ -195,6 +223,13 @@ function Router() {
       <ProtectedRoute path="/student-dashboard" component={StudentDashboardWrapper} roles={['student']} />
       <ProtectedRoute path="/hod-dashboard" component={HODDashboardWrapper} roles={['hod']} />
       <ProtectedRoute path="/attendance" component={AttendanceWrapper} roles={['faculty']} />
+<<<<<<< HEAD
+=======
+      <ProtectedRoute path="/admin/create" component={CreateAdminWrapper} roles={['shiksan_mantri', 'principal']} />
+      <ProtectedRoute path="/temp-admin-create" component={TempCreateAdminWrapper} roles={['student']} />
+      <Route path="/temp-create-shikshan-mantri" component={TempCreateShikshanMantriWrapper} />
+      <ProtectedRoute path="/create-timetable" component={CreateTimetableWrapper} roles={['hod']} />
+>>>>>>> df1c5ed (added github interation)
       
       
       <Route path="/forgot-password" component={ForgotPasswordPage} /> {/* New route for forgot password */}

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+<<<<<<< HEAD
+=======
+import { useAuth } from '@/hooks/use-auth';
+>>>>>>> df1c5ed (added github interation)
 import { User, Classroom, Subject } from '@shared/schema';
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -19,6 +23,7 @@ import {
 const CreateSubject: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+<<<<<<< HEAD
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [name, setName] = useState('');
@@ -60,6 +65,58 @@ const CreateSubject: React.FC = () => {
       // Refresh subjects list
       queryClient.invalidateQueries({ queryKey: ['/api/subjects'] });
     },
+=======
+    const { user } = useAuth();
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+    const [name, setName] = useState('');
+    const [faculty, setFaculty] = useState('');
+            const [classroom, setClassroom] = useState('');
+            const [semester, setSemester] = useState('');
+            const [showCreateForm, setShowCreateForm] = useState(false);
+
+    // Fetch all subjects for the HOD's department
+    const { data: subjects, isLoading: isLoadingSubjects } = useQuery<Subject[]> ({
+      queryKey: ['/api/subjects', user?.department],
+      queryFn: () => {
+        if (!user?.department) return [];
+        const url = `/api/subjects?department=${user.department}`;
+        return apiRequest('GET', url).then((res) => res.json());
+      },
+      enabled: !!user?.department,
+    });    // Fetch all faculty for the HOD's department
+    const { data: facultyMembers, isLoading: isLoadingFaculty } = useQuery<User[]>({
+      queryKey: ['/api/faculty/hod'],
+      queryFn: () => apiRequest('GET', '/api/faculty/hod').then((res) => res.json()),
+    });
+    // Fetch all classrooms for the HOD's department
+    const { data: classrooms, isLoading: isLoadingClassrooms } = useQuery<Classroom[]> ({
+      queryKey: ['/api/classrooms', user?.department],
+      queryFn: () => {
+        if (!user?.department) return [];
+        const url = `/api/classrooms?department=${user.department}`;
+        return apiRequest('GET', url).then((res) => res.json());
+      },
+      enabled: !!user?.department,
+    });
+
+  // Create subject mutation
+      const createSubjectMutation = useMutation({
+        mutationFn: (data: { name: string; faculty: string; classroom: string; semester: string }) =>
+          apiRequest('POST', '/api/subjects', data),      onSuccess: () => {
+        toast({
+          title: 'Subject created successfully',
+          description: `${name} has been added to the system.`,
+        });
+        setName('');
+        setFaculty('');
+        setClassroom('');
+        setSemester('');
+        setShowCreateForm(false);
+        // Refresh subjects list
+        queryClient.invalidateQueries({ queryKey: ['/api/subjects'] });
+      },
+>>>>>>> df1c5ed (added github interation)
     onError: (error: any) => {
       toast({
         title: 'Error creating subject',
@@ -82,6 +139,7 @@ const CreateSubject: React.FC = () => {
       return;
     }
     
+<<<<<<< HEAD
     if (!faculty) {
       toast({
         title: 'Validation Error',
@@ -110,6 +168,24 @@ const CreateSubject: React.FC = () => {
     return foundFaculty ? foundFaculty.name : 'Unknown Faculty';
   };
 
+=======
+        if (!faculty) {
+          toast({
+            title: 'Validation Error',
+            description: 'Please select a faculty member.',
+            variant: 'destructive',
+          });
+          return;
+        }    
+        createSubjectMutation.mutate({ name, faculty, classroom, semester });  };
+  
+  // Function to get faculty name by ID
+    const getFacultyName = (facultyId: string) => {
+      if (!facultyMembers) return 'Unknown Faculty';
+      const foundFaculty = facultyMembers.find(user => user._id === facultyId);
+      return foundFaculty ? foundFaculty.name : 'Unknown Faculty';
+    };
+>>>>>>> df1c5ed (added github interation)
   // Function to get classroom name by ID
   const getClassroomName = (classroomId: string) => {
     if (!classrooms) return 'Unknown Classroom';
@@ -139,6 +215,7 @@ const CreateSubject: React.FC = () => {
             <div className="mb-12">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Existing Subjects</h2>
+<<<<<<< HEAD
                 <div className="flex items-center space-x-4">
                   <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
                     {subjects?.length || 0} subjects
@@ -152,6 +229,19 @@ const CreateSubject: React.FC = () => {
                   </Button>
                 </div>
               </div>
+=======
+                                                                                                  <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                    {subjects?.length || 0} subjects
+                                                  </Badge>
+                                                  <Button
+                                                    onClick={() => setShowCreateForm(true)}
+                                                    className="flex items-center"
+                                                  >
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Create Subject
+                                                  </Button>
+                                                </div>              </div>
+>>>>>>> df1c5ed (added github interation)
 
               {isLoadingSubjects ? (
                 <div className="flex justify-center items-center h-64">
@@ -252,6 +342,7 @@ const CreateSubject: React.FC = () => {
                           onChange={(e) => setFaculty(e.target.value)}
                           className="w-full px-4 py-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                         >
+<<<<<<< HEAD
                           <option value="">Select Faculty</option>
                           {isLoadingUsers ? (
                             <option disabled>Loading faculty...</option>
@@ -273,6 +364,25 @@ const CreateSubject: React.FC = () => {
                       <div>
                         <label htmlFor="classroom" className="block text-sm font-medium text-gray-700 mb-2">
                           Classroom <span className="text-red-500">*</span>
+=======
+                                                <option value="">Select Faculty</option>
+                                                {isLoadingFaculty ? (
+                                                  <option disabled>Loading faculty...</option>
+                                                ) : facultyMembers && facultyMembers.length > 0 ? (
+                                                  facultyMembers.map((user) => (
+                                                    <option key={user._id} value={user._id}>
+                                                      {user.name} ({user.email})
+                                                    </option>
+                                                  ))
+                                                ) : (
+                                                  <option disabled>No faculty available</option>
+                                                )}                        </select>
+                      </div>
+
+                                                                  <div>
+                        <label htmlFor="classroom" className="block text-sm font-medium text-gray-700 mb-2">
+                          Classroom
+>>>>>>> df1c5ed (added github interation)
                         </label>
                         <select
                           id="classroom"
@@ -295,6 +405,28 @@ const CreateSubject: React.FC = () => {
                         </select>
                       </div>
 
+<<<<<<< HEAD
+=======
+                      {/* Semester Selection */}
+                      <div>
+                        <label htmlFor="semester" className="block text-sm font-medium text-gray-700 mb-2">
+                          Semester <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          id="semester"
+                          value={semester}
+                          onChange={(e) => setSemester(e.target.value)}
+                          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                          placeholder="e.g., 1"
+                          min="1"
+                          max="12"
+                          required
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+>>>>>>> df1c5ed (added github interation)
                       <div className="pt-4 flex flex-col sm:flex-row-reverse sm:space-x-4 space-y-3 sm:space-y-0 sm:space-x-reverse">
                         <Button
                           type="submit"
@@ -316,7 +448,11 @@ const CreateSubject: React.FC = () => {
                       <Button
                         type="button"
                         variant="outline"
+<<<<<<< HEAD
                         className="w-full sm:w-auto"
+=======
+                        className="w-full sm:w-auto bg-red"
+>>>>>>> df1c5ed (added github interation)
                         onClick={() => {
                           setShowCreateForm(false);
                           setName('');
@@ -333,12 +469,19 @@ const CreateSubject: React.FC = () => {
             </div>
           )}
 
+<<<<<<< HEAD
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>All fields marked with <span className="text-red-500">*</span> are required</p>
         </div>
           </div>
         </main>
       </div>
+=======
+                  <div className="mt-6 text-center text-sm text-gray-500">
+                    <p>All fields marked with <span className="text-red-500">*</span> are required</p>
+                  </div>
+                </main>      </div>
+>>>>>>> df1c5ed (added github interation)
     </div>
   );
 };

@@ -1,7 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { User } from '@shared/schema';
 
-export interface UserDocument extends Omit<User, '_id'>, Document {}
+export interface UserDocument extends Omit<User, '_id'>, Document {
+  semester?: number;
+}
 
 const userSchema = new Schema<UserDocument>({
   name: {
@@ -28,8 +30,13 @@ const userSchema = new Schema<UserDocument>({
     required: true
   },
   department: {
+<<<<<<< HEAD
     type: String,
     trim: true
+=======
+    type: Schema.Types.ObjectId,
+    ref: 'Department'
+>>>>>>> df1c5ed (added github interation)
   },
   profile: {
     type: Schema.Types.ObjectId,
@@ -39,6 +46,14 @@ const userSchema = new Schema<UserDocument>({
     type: Schema.Types.ObjectId,
     ref: 'College'
   },
+<<<<<<< HEAD
+=======
+  semester: {
+    type: Number,
+    min: 1,
+    max: 12 // Assuming a maximum of 12 semesters
+  },
+>>>>>>> df1c5ed (added github interation)
   resetPasswordToken: String,
   resetPasswordExpires: Date
 }, {
