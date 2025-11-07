@@ -14,11 +14,9 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { connectDB } from "./db";
-<<<<<<< HEAD
-import { sendMail } from './utils/mailer';
-=======
 
->>>>>>> df1c5ed (added github interation)
+import { sendMail } from './utils/mailer';
+
 
 const app = express();
 app.use(express.json());

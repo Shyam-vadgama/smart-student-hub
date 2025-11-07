@@ -15,10 +15,9 @@ const IntegrationSettings: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [githubToken, setGithubToken] = useState('');
   const [vercelToken, setVercelToken] = useState('');
-  const [showGithubDialog, setShowGithubDialog] = useState(false);
   const [showVercelDialog, setShowVercelDialog] = useState(false);
+  const [isConnectingGithub, setIsConnectingGithub] = useState(false);
 
   // Fetch integration status
   const { data: integrationStatus, isLoading } = useQuery({
@@ -42,24 +41,65 @@ const IntegrationSettings: React.FC = () => {
     retry: false
   });
 
-  // Connect GitHub mutation
-  const connectGithubMutation = useMutation({
-    mutationFn: (token: string) => apiRequest('POST', '/api/integrations/github/connect', { accessToken: token }),
-    onSuccess: () => {
-      toast({ title: '✅ GitHub connected successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['/api/integrations/status'] });
-      refetchGithubRepos();
-      setShowGithubDialog(false);
-      setGithubToken('');
-    },
-    onError: (error: any) => {
+  // Handle GitHub OAuth connection
+  const handleConnectGithubOAuth = async () => {
+    try {
+      setIsConnectingGithub(true);
+      
+      // Get OAuth URL from backend
+      const response = await apiRequest('GET', '/api/integrations/github/auth');
+      const data = await response.json();
+      
+      if (!data.success || !data.authUrl) {
+        throw new Error('Failed to get GitHub auth URL');
+      }
+      
+      // Open OAuth popup
+      const width = 600;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
+      const popup = window.open(
+        data.authUrl,
+        'GitHub OAuth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+      
+      // Poll for popup closure and check connection status
+      const checkPopup = setInterval(async () => {
+        if (popup?.closed) {
+          clearInterval(checkPopup);
+          setIsConnectingGithub(false);
+          
+          // Check if connection was successful
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('github') === 'connected') {
+            toast({ title: '✅ GitHub connected successfully!' });
+            queryClient.invalidateQueries({ queryKey: ['/api/integrations/status'] });
+            refetchGithubRepos();
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+          } else if (urlParams.get('error')) {
+            toast({ 
+              title: 'Failed to connect GitHub', 
+              description: urlParams.get('error'), 
+              variant: 'destructive' 
+            });
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        }
+      }, 500);
+      
+    } catch (error: any) {
+      setIsConnectingGithub(false);
       toast({ 
         title: 'Failed to connect GitHub', 
         description: error.message, 
         variant: 'destructive' 
       });
     }
-  });
+  };
 
   // Connect Vercel mutation
   const connectVercelMutation = useMutation({
@@ -112,13 +152,6 @@ const IntegrationSettings: React.FC = () => {
     }
   });
 
-  const handleConnectGithub = () => {
-    if (!githubToken.trim()) {
-      toast({ title: 'Please enter a valid GitHub token', variant: 'destructive' });
-      return;
-    }
-    connectGithubMutation.mutate(githubToken);
-  };
 
   const handleConnectVercel = () => {
     if (!vercelToken.trim()) {
@@ -240,20 +273,16 @@ const IntegrationSettings: React.FC = () => {
                   Connect your GitHub account to push your projects to repositories and enable version control.
                 </p>
                 <Button 
-                  onClick={() => setShowGithubDialog(true)}
+                  onClick={handleConnectGithubOAuth}
+                  disabled={isConnectingGithub}
                   className="w-full flex items-center gap-2"
                 >
-                  <LinkIcon className="h-4 w-4" />
-                  Connect GitHub
+                  <Github className="h-4 w-4" />
+                  {isConnectingGithub ? 'Connecting...' : 'Connect with GitHub'}
                 </Button>
-                <a 
-                  href="https://github.com/settings/tokens/new?scopes=repo,user&description=Smart%20Student%20Hub"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline block text-center"
-                >
-                  Generate GitHub Personal Access Token →
-                </a>
+                <p className="text-xs text-gray-500 text-center">
+                  You'll be redirected to GitHub to authorize access
+                </p>
               </>
             )}
           </CardContent>
@@ -364,55 +393,6 @@ const IntegrationSettings: React.FC = () => {
         </Card>
       </div>
 
-      {/* GitHub Connection Dialog */}
-      <Dialog open={showGithubDialog} onOpenChange={setShowGithubDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Connect GitHub Account</DialogTitle>
-            <DialogDescription>
-              Enter your GitHub Personal Access Token to connect your account.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="github-token">GitHub Personal Access Token</Label>
-              <Input
-                id="github-token"
-                type="password"
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                value={githubToken}
-                onChange={(e) => setGithubToken(e.target.value)}
-                className="mt-2"
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                Required scopes: <code className="bg-gray-100 px-1 rounded">repo</code>, <code className="bg-gray-100 px-1 rounded">user</code>
-              </p>
-            </div>
-            <Alert>
-              <AlertDescription className="text-xs">
-                <strong>How to get a token:</strong>
-                <ol className="list-decimal ml-4 mt-2 space-y-1">
-                  <li>Go to GitHub Settings → Developer settings → Personal access tokens</li>
-                  <li>Click "Generate new token (classic)"</li>
-                  <li>Select scopes: <code>repo</code> and <code>user</code></li>
-                  <li>Copy the generated token and paste it here</li>
-                </ol>
-              </AlertDescription>
-            </Alert>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowGithubDialog(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleConnectGithub}
-              disabled={connectGithubMutation.isPending}
-            >
-              {connectGithubMutation.isPending ? 'Connecting...' : 'Connect'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Vercel Connection Dialog */}
       <Dialog open={showVercelDialog} onOpenChange={setShowVercelDialog}>

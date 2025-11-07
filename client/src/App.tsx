@@ -43,15 +43,20 @@ import ResetPassword from "@/pages/ResetPassword";
 import FacultyDashboard from "@/pages/FacultyDashboard";
 import StudentDashboard from "@/pages/StudentDashboard";
 import HODDashboard from "@/pages/HODDashboard";
+import EnhancedAdminDashboard from "@/pages/EnhancedAdminDashboard";
+import EnhancedPrincipalDashboard from "@/pages/EnhancedPrincipalDashboard";
+import EnhancedHODDashboard from "@/pages/EnhancedHODDashboard";
+import EnhancedFacultyDashboard from "@/pages/EnhancedFacultyDashboard";
+import EnhancedStudentDashboard from "@/pages/EnhancedStudentDashboard";
 import AttendancePage from "@/pages/attendance-page";
-<<<<<<< HEAD
-=======
 import CreateAdmin from "@/pages/CreateAdmin";
 import TempCreateAdmin from "@/pages/TempCreateAdmin";
 import TempCreateShikshanMantri from "@/pages/TempCreateShikshanMantri";
 import ForgotPassword from "@/pages/ForgotPassword";
 import CreateTimetable from "@/pages/CreateTimetable";
->>>>>>> df1c5ed (added github interation)
+import ApprovalWorkflowConfig from "@/pages/approval-workflow-config";
+import ApprovalRequestsPage from "@/pages/approval-requests-page";
+import PublicPortfolioPage from "@/pages/public-portfolio-page";
 
 
 // Wrapper components to ensure they always return an element
@@ -157,12 +162,30 @@ const HODDashboardWrapper = () => {
   return <HODDashboard />;
 };
 
+const EnhancedAdminDashboardWrapper = () => {
+  return <EnhancedAdminDashboard />;
+};
+
+const EnhancedPrincipalDashboardWrapper = () => {
+  return <EnhancedPrincipalDashboard />;
+};
+
+const EnhancedHODDashboardWrapper = () => {
+  return <EnhancedHODDashboard />;
+};
+
+const EnhancedFacultyDashboardWrapper = () => {
+  return <EnhancedFacultyDashboard />;
+};
+
+const EnhancedStudentDashboardWrapper = () => {
+  return <EnhancedStudentDashboard />;
+};
+
 const AttendanceWrapper = () => {
   return <AttendancePage />;
 };
 
-<<<<<<< HEAD
-=======
 const CreateAdminWrapper = () => {
   return <CreateAdmin />;
 };
@@ -178,9 +201,6 @@ const TempCreateShikshanMantriWrapper = () => {
 const CreateTimetableWrapper = () => {
   return <CreateTimetable />;
 };
-
-
->>>>>>> df1c5ed (added github interation)
 
 
 
@@ -217,20 +237,25 @@ function Router() {
       <ProtectedRoute path="/create-classroom" component={CreateClassroomWrapper} roles={['hod']} />
       <ProtectedRoute path="/create-subject" component={CreateSubjectWrapper} roles={['hod']} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboardWrapper} roles={['shiksan_mantri']} />
+      <ProtectedRoute path="/admin/dashboard" component={EnhancedAdminDashboardWrapper} roles={['shiksan_mantri']} />
+      <ProtectedRoute path="/principal-dashboard" component={EnhancedPrincipalDashboardWrapper} roles={['principal']} />
+      <ProtectedRoute path="/hod/dashboard" component={EnhancedHODDashboardWrapper} roles={['hod']} />
+      <ProtectedRoute path="/faculty/dashboard" component={EnhancedFacultyDashboardWrapper} roles={['faculty']} />
+      <ProtectedRoute path="/student/dashboard" component={EnhancedStudentDashboardWrapper} roles={['student']} />
       <ProtectedRoute path="/college/:id" component={CollegeDetailsWrapper} roles={['shiksan_mantri', 'principal']} />
       <Route path="/reset-password/:token" component={ResetPasswordWrapper} />
       <ProtectedRoute path="/faculty-dashboard" component={FacultyDashboardWrapper} roles={['faculty']} />
       <ProtectedRoute path="/student-dashboard" component={StudentDashboardWrapper} roles={['student']} />
       <ProtectedRoute path="/hod-dashboard" component={HODDashboardWrapper} roles={['hod']} />
       <ProtectedRoute path="/attendance" component={AttendanceWrapper} roles={['faculty']} />
-<<<<<<< HEAD
-=======
       <ProtectedRoute path="/admin/create" component={CreateAdminWrapper} roles={['shiksan_mantri', 'principal']} />
       <ProtectedRoute path="/temp-admin-create" component={TempCreateAdminWrapper} roles={['student']} />
       <Route path="/temp-create-shikshan-mantri" component={TempCreateShikshanMantriWrapper} />
       <ProtectedRoute path="/create-timetable" component={CreateTimetableWrapper} roles={['hod']} />
->>>>>>> df1c5ed (added github interation)
-      
+      <ProtectedRoute path="/approval-workflows" component={ApprovalWorkflowConfig} roles={['hod', 'principal', 'shiksan_mantri']} />
+      <ProtectedRoute path="/approval-requests" component={ApprovalRequestsPage} roles={['student', 'faculty', 'hod', 'principal', 'shiksan_mantri']} />
+      <Route path="/public-portfolio/:studentId" component={PublicPortfolioPage} />
+      <Route path="/public-portfolio" component={PublicPortfolioPage} />
       
       <Route path="/forgot-password" component={ForgotPasswordPage} /> {/* New route for forgot password */}
       <Route component={NotFound} />

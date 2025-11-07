@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import React, { useState, useMemo } from 'react';
-=======
 import React, { useState, useMemo, useEffect } from 'react';
 import socket from '@/lib/socket';
->>>>>>> df1c5ed (added github interation)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { User } from '@shared/schema';
@@ -16,28 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-<<<<<<< HEAD
-=======
 import { Textarea } from "@/components/ui/textarea";
->>>>>>> df1c5ed (added github interation)
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-<<<<<<< HEAD
-import { UserPlus, Users, Link, Trash2, Calendar, BookOpen, CheckCircle, XCircle, BarChart3, UserCheck, AlertTriangle, Award, Download, FileSpreadsheet, Filter, Search, ChevronDown, TrendingUp, TrendingDown, Activity, Eye, EyeOff, RefreshCw, Settings, MoreHorizontal, PieChart, GraduationCap, UserMinus, Clock, Target } from "lucide-react";
-=======
 import { UserPlus, Users, Link, Trash2, Calendar, BookOpen, CheckCircle, XCircle, BarChart3, UserCheck, AlertTriangle, Award, Download, FileSpreadsheet, Filter, Search, ChevronDown, TrendingUp, TrendingDown, Activity, Eye, EyeOff, RefreshCw, Settings, MoreHorizontal, PieChart, GraduationCap, UserMinus, Clock, Target, MessageSquare, Send } from "lucide-react";
->>>>>>> df1c5ed (added github interation)
 import CreateStudent from '@/components/CreateStudent';
 import StudentList from '@/components/StudentList';
 import TimetableManager from '@/components/TimetableManager';
 import * as XLSX from 'xlsx';
 
-<<<<<<< HEAD
-=======
 interface IHODMessage {
   _id: string;
   sender: { _id: string; name: string; email: string; department: { _id: string; name: string } };
@@ -56,7 +43,6 @@ interface UserWithDepartment extends User {
   semester?: number;
 }
 
->>>>>>> df1c5ed (added github interation)
 const HODDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -77,14 +63,11 @@ const HODDashboard: React.FC = () => {
   const [newStudentBatch, setNewStudentBatch] = useState('');
   const [newStudentDepartment, setNewStudentDepartment] = useState('');
     
-<<<<<<< HEAD
-=======
   // HOD Communication states
   const [selectedRecipientId, setSelectedRecipientId] = useState('');
   const [messageContent, setMessageContent] = useState('');
   const [isSendMessageDialogOpen, setIsSendMessageDialogOpen] = useState(false);
 
->>>>>>> df1c5ed (added github interation)
   // Enhanced filter states
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState("all");
@@ -111,8 +94,6 @@ const HODDashboard: React.FC = () => {
   const [showAnalytics, setShowAnalytics] = useState(true);
   const [compactView, setCompactView] = useState(false);
 
-<<<<<<< HEAD
-=======
   // Real-time update: refetch on socket events
   useEffect(() => {
     function handleAttendanceUpdate() {
@@ -128,7 +109,6 @@ const HODDashboard: React.FC = () => {
     };
   }, []);
 
->>>>>>> df1c5ed (added github interation)
   // Timetable creation states
   const [timetableSemester, setTimetableSemester] = useState('');
   const [timetableSchedule, setTimetableSchedule] = useState<any[]>([]);
@@ -190,8 +170,6 @@ const HODDashboard: React.FC = () => {
     enabled: !!user && user.role === 'hod' && !!user.department,
   });
 
-<<<<<<< HEAD
-=======
   // Fetch other HODs for collaboration
   const { data: otherHods = [], isLoading: isLoadingOtherHods } = useQuery<User[]>({
     queryKey: ['/api/hods/other-departments', user?._id],
@@ -248,7 +226,6 @@ const HODDashboard: React.FC = () => {
     respondToMessageMutation.mutate({ messageId, status });
   };
 
->>>>>>> df1c5ed (added github interation)
   // Enhanced filtering and search functionality
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -866,15 +843,12 @@ const HODDashboard: React.FC = () => {
                     >
                       Timetable
                     </TabsTrigger>
-<<<<<<< HEAD
-=======
                     <TabsTrigger 
                       value="collaboration" 
                       className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-medium transition-all"
                     >
                       Collaboration
                     </TabsTrigger>
->>>>>>> df1c5ed (added github interation)
                   </TabsList>
 
                   <div className="flex items-center gap-2 w-full lg:w-auto">
@@ -2210,8 +2184,6 @@ const HODDashboard: React.FC = () => {
                 <TabsContent value="timetable" className="p-6">
                   <TimetableManager />
                 </TabsContent>
-<<<<<<< HEAD
-=======
 
                 {/* Collaboration Tab */}
                 <TabsContent value="collaboration" className="p-6 space-y-6">
@@ -2361,7 +2333,6 @@ const HODDashboard: React.FC = () => {
                     </CardContent>
                   </Card>
                 </TabsContent>
->>>>>>> df1c5ed (added github interation)
               </Tabs>
             </div>
           </div>

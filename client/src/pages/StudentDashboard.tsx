@@ -1,8 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-<<<<<<< HEAD
-=======
 import socket from '@/lib/socket';
->>>>>>> df1c5ed (added github interation)
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Marks, Attendance, Timetable } from '@shared/schema';
@@ -34,16 +31,9 @@ import {
   Target,
   Award,
   Users,
-  MapPin,
-<<<<<<< HEAD
-  Bell
-} from "lucide-react";
-=======
-  Bell,
   FolderGit2
 } from "lucide-react";
 import ProjectDashboard from '@/components/ProjectDashboard';
->>>>>>> df1c5ed (added github interation)
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -64,8 +54,6 @@ const StudentDashboard: React.FC = () => {
   const [contactRecipient, setContactRecipient] = useState<'hod' | 'principal' | 'shiksan_mantri' | ''>('');
   const [contactMessage, setContactMessage] = useState('');
 
-<<<<<<< HEAD
-=======
   // Real-time update: refetch on socket events
   useEffect(() => {
     function handleAttendanceUpdate() {
@@ -82,7 +70,6 @@ const StudentDashboard: React.FC = () => {
     };
   }, []);
 
->>>>>>> df1c5ed (added github interation)
   // Fetch student's marks
   const { data: marks, isLoading: marksLoading, error: marksError } = useQuery<Marks[]>({
     queryKey: ['/api/marks/student', user?._id],
@@ -97,14 +84,6 @@ const StudentDashboard: React.FC = () => {
     enabled: !!user?._id
   });
 
-  // Fetch student-specific timetable (filtered by department and semester)
-<<<<<<< HEAD
-  const { data: timetables, isLoading: timetableLoading, error: timetableError } = useQuery<Timetable[]>({
-    queryKey: ['/api/timetables/student'],
-    queryFn: () => apiRequest('GET', '/api/timetables/student').then((res) => res.json()),
-    enabled: !!user
-=======
-  console.log('StudentDashboard: user?.semester', user?.semester);
   const { data: timetables, isLoading: timetableLoading, error: timetableError } = useQuery<Timetable[]>({
     queryKey: ['/api/timetables/student', user?._id, user?.semester],
     queryFn: () => {
@@ -112,7 +91,6 @@ const StudentDashboard: React.FC = () => {
       return apiRequest('GET', `/api/timetables/student/${user.semester}`).then((res) => res.json());
     },
     enabled: !!user?._id && !!user?.semester,
->>>>>>> df1c5ed (added github interation)
   });
 
   const contactAuthorityMutation = useMutation({
@@ -221,16 +199,7 @@ const StudentDashboard: React.FC = () => {
     if (!timetables || timetables.length === 0) return [];
     
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-<<<<<<< HEAD
-    const currentTimetable = timetables[0]; // Assuming first timetable is current semester
-    
-    if (!currentTimetable) return [];
-    
-    return currentTimetable.schedule.filter(item => 
-=======
-    
     return timetables.filter(item => 
->>>>>>> df1c5ed (added github interation)
       item.day.toLowerCase() === today.toLowerCase()
     ).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [timetables]);
@@ -380,22 +349,15 @@ const StudentDashboard: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="p-6 border-b border-gray-200">
-<<<<<<< HEAD
-                  <TabsList className="grid w-full lg:w-auto grid-cols-4 bg-gray-100 p-1 rounded-lg">
-=======
                   <TabsList className="grid w-full lg:w-auto grid-cols-5 bg-gray-100 p-1 rounded-lg">
->>>>>>> df1c5ed (added github interation)
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="attendance">Attendance</TabsTrigger>
                     <TabsTrigger value="marks">Marks</TabsTrigger>
                     <TabsTrigger value="timetable">Timetable</TabsTrigger>
-<<<<<<< HEAD
-=======
                     <TabsTrigger value="projects" className="flex items-center gap-1">
                       <FolderGit2 className="h-4 w-4" />
                       Projects
                     </TabsTrigger>
->>>>>>> df1c5ed (added github interation)
                   </TabsList>
                 </div>
 
@@ -481,43 +443,6 @@ const StudentDashboard: React.FC = () => {
                 <TabsContent value="timetable" className="p-6">
                   <Card>
                     <CardHeader>
-<<<<<<< HEAD
-                      <CardTitle>My Timetable</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {timetables && timetables.length > 0 ? (
-                        <div className="space-y-6">
-                          {timetables.map(tt => (
-                            <div key={tt._id}>
-                              <h3 className="font-semibold mb-4">Semester {tt.semester}</h3>
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Day</TableHead>
-                                    <TableHead>Time</TableHead>
-                                    <TableHead>Subject</TableHead>
-                                    <TableHead>Room</TableHead>
-                                    <TableHead>Faculty</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {tt.schedule.map((item, index) => (
-                                    <TableRow key={index}>
-                                      <TableCell>{item.day}</TableCell>
-                                      <TableCell>{item.startTime} - {item.endTime}</TableCell>
-                                      <TableCell>{(item.subject as any)?.name || 'N/A'}</TableCell>
-                                      <TableCell>{(item.classroom as any)?.name || 'N/A'}</TableCell>
-                                      <TableCell>{(item.faculty as any)?.name || 'N/A'}</TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p>No timetable available.</p>
-=======
                       <CardTitle>My Timetable (Semester {user?.semester})</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -546,13 +471,11 @@ const StudentDashboard: React.FC = () => {
                         </Table>
                       ) : (
                         <p>No timetable available for this semester.</p>
->>>>>>> df1c5ed (added github interation)
                       )}
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                {/* Overview Tab */}
                 <TabsContent value="overview" className="p-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card>
@@ -600,14 +523,11 @@ const StudentDashboard: React.FC = () => {
                     </Card>
                   </div>
                 </TabsContent>
-<<<<<<< HEAD
-=======
 
                 {/* Projects Tab */}
                 <TabsContent value="projects" className="p-6">
                   <ProjectDashboard />
                 </TabsContent>
->>>>>>> df1c5ed (added github interation)
               </Tabs>
             </div>
           </div>

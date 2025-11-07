@@ -46,3 +46,25 @@ export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFu
     next();
   }
 };
+
+// Alias for authMiddleware to match import expectations
+export const isAuthenticated = authMiddleware;
+
+// Role-based access control middleware
+export const hasRole = (roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: 'Access denied: insufficient permissions',
+        required: roles,
+        current: req.user.role
+      });
+    }
+
+    next();
+  };
+};

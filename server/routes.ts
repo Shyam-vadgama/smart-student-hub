@@ -19,6 +19,9 @@ import submissionRoutes from './routes/leetcode/submissionRoutes';
 import badgeRoutes from './routes/leetcode/badgeRoutes';
 import stockRoutes from './routes/stockRoutes';
 import businessProblemRoutes from './routes/businessProblemRoutes';
+import approvalWorkflowRoutes from './routes/approvalWorkflowRoutes';
+import approvalRequestRoutes from './routes/approvalRequestRoutes';
+import publicPortfolioRoutes from './routes/publicPortfolioRoutes';
 import ResumeModel from './models/Resume';
 import CircuitProblem from './models/CircuitProblem';
 import CircuitSubmission from './models/CircuitSubmission';
@@ -32,11 +35,7 @@ import Subject from './models/Subject';
 import Marks from './models/Marks';
 import Attendance from './models/Attendance';
 import Timetable from './models/Timetable';
-<<<<<<< HEAD
-=======
-import Timetable from './models/Timetable';
 import HODMessage from './models/HODMessage';
->>>>>>> df1c5ed (added github interation)
 import crypto from 'crypto';
 import mongoose from "mongoose";
 // use global fetch available in Node 18+
@@ -288,10 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: fullUser?.email || req.user.email,
         role: fullUser?.role || req.user.role,
         department: (fullUser as any)?.department || (req.user as any).department,
-<<<<<<< HEAD
-=======
         semester: fullUser?.semester || (req.user as any).semester,
->>>>>>> df1c5ed (added github interation)
         profile: fullUser?.profile || req.user.profile
       });
     }).catch(() => {
@@ -302,10 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: req.user.email,
         role: req.user.role,
         department: (req.user as any).department,
-<<<<<<< HEAD
-=======
         semester: (req.user as any).semester,
->>>>>>> df1c5ed (added github interation)
         profile: req.user.profile
       });
     });
@@ -1308,17 +1301,10 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
 
   app.post('/api/users/create-student', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
-<<<<<<< HEAD
       const { name, email, semester, course, batch, department } = req.body;
 
       if (!name || !email) {
         return res.status(400).json({ message: 'Name and email are required' });
-=======
-      const { name, email, semester, course, batch } = req.body;
-
-      if (!name || !email || !semester) {
-        return res.status(400).json({ message: 'Name, email, and semester are required' });
->>>>>>> df1c5ed (added github interation)
       }
 
       const hod = await UserModel.findById(req.user._id);
@@ -1339,14 +1325,9 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         email,
         password: hashedPassword,
         role: 'student',
-<<<<<<< HEAD
         department: department || hod.department,
         college: hod.college,
-=======
-        department: hod.department,
-        college: hod.college,
         semester: parseInt(semester),
->>>>>>> df1c5ed (added github interation)
       });
 
       await newUser.save();
@@ -1354,29 +1335,18 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       // Create profile with batch information
       const newProfile = new ProfileModel({
         user: newUser._id,
-<<<<<<< HEAD
         semester: semester || undefined,
         course: course || undefined,
         batch: batch || undefined,
         department: department || hod.department,
-=======
-        semester: parseInt(semester),
-        course: course || undefined,
-        batch: batch || undefined,
-        department: hod.department,
->>>>>>> df1c5ed (added github interation)
       });
 
       await newProfile.save();
 
       // Update user with profile reference
       await UserModel.findByIdAndUpdate(newUser._id, {
-<<<<<<< HEAD
-        profile: newProfile._id
-=======
         profile: newProfile._id,
         semester: newUser.semester,
->>>>>>> df1c5ed (added github interation)
       });
 
       const resetToken = crypto.randomBytes(20).toString('hex');
@@ -1399,10 +1369,7 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
           role: newUser.role,
           department: newUser.department,
           college: newUser.college,
-<<<<<<< HEAD
-=======
           semester: newUser.semester,
->>>>>>> df1c5ed (added github interation)
           profile: {
             _id: newProfile._id,
             semester: newProfile.semester,
@@ -1484,8 +1451,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
     }
   });
 
-<<<<<<< HEAD
-=======
   app.get('/api/departments/hod', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
       const hod = await UserModel.findById(req.user._id);
@@ -1502,10 +1467,7 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       console.error('Error fetching departments:', error);
       res.status(500).json({ message: 'Error fetching departments', error: (error as Error).message });
     }
-  });
-
->>>>>>> df1c5ed (added github interation)
-  // Get HODs for principal dashboard
+  });  // Get HODs for principal dashboard
     app.get('/api/hods/principal', authMiddleware, checkRole(['principal']), async (req: AuthRequest, res) => {
       try {
         const principalUser = await UserModel.findById(req.user._id);
@@ -1520,14 +1482,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         .populate('department', 'name')
         .sort({ name: 1 });
   
-<<<<<<< HEAD
-        res.status(200).json(hods);
-      } catch (error) {
-        console.error('Error fetching HODs:', error);
-        res.status(500).json({ message: 'Error fetching HODs', error: (error as Error).message });
-      }
-    });
-=======
               res.status(200).json(hods);
             } catch (error) {
               console.error('Error fetching HODs:', error);
@@ -2074,7 +2028,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       res.status(500).json({ message: 'Error fetching faculty' });
     }
   });
->>>>>>> df1c5ed (added github interation)
   
     
   // Create department with HOD in one go (comprehensive endpoint)
@@ -2112,35 +2065,18 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
         name: departmentName, 
         college: principalUser.college 
       });
-<<<<<<< HEAD
-      
-      await department.save();
-      console.log('Department created:', department._id);
-
-      // Generate random password for HOD
-      const password = crypto.randomBytes(10).toString('hex');
-      
-      // Create HOD user directly using UserModel
-      const hashedPassword = await bcrypt.hash(password, 12);
-=======
       await department.save();
 
       // Generate random password for HOD
       const password = crypto.randomBytes(10).toString('hex');
       const hashedPassword = await bcrypt.hash(password, 12);
       console.log('Hashed password:', hashedPassword);
-
->>>>>>> df1c5ed (added github interation)
       const hodUser = new UserModel({
         name: hodName,
         email: hodEmail,
         password: hashedPassword,
         role: 'hod',
-<<<<<<< HEAD
-        department: (department._id as any).toString(),
-=======
         department: department._id, // Assign the department ID
->>>>>>> df1c5ed (added github interation)
         college: principalUser.college
       });
       
@@ -2326,7 +2262,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
     }
   });
 
-<<<<<<< HEAD
   app.post('/api/classrooms/:id/assign-subjects', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
       const { subjects } = req.body;
@@ -2346,7 +2281,9 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       res.status(200).json(classroom);
     } catch (error) {
       res.status(500).json({ message: 'Error assigning subjects to classroom' });
-=======
+    }
+  });
+
   app.post('/api/subjects', authMiddleware, checkRole(['hod', 'faculty']), async (req: AuthRequest, res) => {
     try {
       const { name, classroom, semester } = req.body;
@@ -2371,7 +2308,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       res.status(201).json(subject);
     } catch (error) {
       res.status(500).json({ message: 'Error creating subject' });
->>>>>>> df1c5ed (added github interation)
     }
   });
 
@@ -2388,21 +2324,15 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
 
       const subject = new Subject({ name, faculty: req.user._id, classroom, department, createdBy: req.user._id });
       await subject.save();
-<<<<<<< HEAD
-=======
 
       // Update the classroom with the new subject
       await Classroom.findByIdAndUpdate(classroom, { $push: { subjects: subject._id } });
-
->>>>>>> df1c5ed (added github interation)
       res.status(201).json(subject);
     } catch (error) {
       res.status(500).json({ message: 'Error creating subject' });
     }
   });
 
-<<<<<<< HEAD
-=======
   // Timetable routes
   app.post('/api/timetables', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
@@ -2506,8 +2436,6 @@ app.get('/api/students/classroom/:classroomId', authMiddleware, checkRole(['facu
       res.status(500).json({ message: 'Error fetching student timetable entries' });
     }
   });
-
->>>>>>> df1c5ed (added github interation)
   app.get('/api/subjects', authMiddleware, async (req: AuthRequest, res) => {
     try {
       const user = await UserModel.findById(req.user._id);
@@ -2729,19 +2657,11 @@ app.get('/api/principal/departments', authMiddleware, checkRole(['principal']), 
 
   app.get('/api/classrooms', authMiddleware, checkRole(['hod']), async (req: AuthRequest, res) => {
     try {
-<<<<<<< HEAD
-      const user = await storage.getUser(req.user._id);
-      if (!user || !user.department) {
-        return res.status(400).json({ message: 'User not associated with a department' });
-      }
-      const classrooms = await Classroom.find({ department: user.department });
-=======
       const hod = await UserModel.findById(req.user._id);
       if (!hod || !hod.department) {
         return res.status(400).json({ message: 'HOD not associated with a department' });
       }
       const classrooms = await Classroom.find({ department: hod.department }).populate('subjects');
->>>>>>> df1c5ed (added github interation)
       res.status(200).json(classrooms);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching classrooms' });
@@ -3484,9 +3404,6 @@ app.get('/api/users/students', authMiddleware, checkRole(['hod']), async (req: A
       res.status(500).json({ message: 'Error sending message to authority' });
     }
   });
-<<<<<<< HEAD
-=======
-
   // Project Management Routes
   const projectRoutes = await import('./routes/projectRoutes.js');
   app.use('/api/projects', authMiddleware, checkRole(['student', 'faculty', 'hod']), projectRoutes.default);
@@ -3494,7 +3411,27 @@ app.get('/api/users/students', authMiddleware, checkRole(['hod']), async (req: A
   // Integration Routes (GitHub & Vercel)
   const integrationRoutes = await import('./routes/integrationRoutes.js');
   app.use('/api/integrations', authMiddleware, checkRole(['student']), integrationRoutes.default);
->>>>>>> df1c5ed (added github interation)
+
+  // Third-Party Integration Routes (ERP, LMS, etc. - for Principals)
+  const thirdPartyIntegrationRoutes = await import('./routes/integrations.js');
+  app.use('/api/third-party-integrations', thirdPartyIntegrationRoutes.default);
+
+  // NAAC/NBA Report Routes
+  const naacReportRoutes = await import('./routes/naacReports.js');
+  app.use('/api/naac-reports', naacReportRoutes.default);
+
+  // HOD Communication/Messages Routes
+  const messageRoutes = await import('./routes/messages.js');
+  app.use('/api/messages', messageRoutes.default);
+
+  // Approval Workflow Routes
+  app.use('/api/approval-workflows', approvalWorkflowRoutes);
+
+  // Approval Request Routes
+  app.use('/api/approval-requests', approvalRequestRoutes);
+
+  // Public Portfolio Routes (no auth required for viewing)
+  app.use('/api/public-portfolios', publicPortfolioRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

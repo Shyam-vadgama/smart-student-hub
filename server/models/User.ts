@@ -30,13 +30,8 @@ const userSchema = new Schema<UserDocument>({
     required: true
   },
   department: {
-<<<<<<< HEAD
-    type: String,
-    trim: true
-=======
     type: Schema.Types.ObjectId,
     ref: 'Department'
->>>>>>> df1c5ed (added github interation)
   },
   profile: {
     type: Schema.Types.ObjectId,
@@ -46,14 +41,11 @@ const userSchema = new Schema<UserDocument>({
     type: Schema.Types.ObjectId,
     ref: 'College'
   },
-<<<<<<< HEAD
-=======
   semester: {
     type: Number,
     min: 1,
     max: 12 // Assuming a maximum of 12 semesters
   },
->>>>>>> df1c5ed (added github interation)
   resetPasswordToken: String,
   resetPasswordExpires: Date
 }, {

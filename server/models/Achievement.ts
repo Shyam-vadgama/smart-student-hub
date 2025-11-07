@@ -78,7 +78,17 @@ const achievementSchema = new Schema<AchievementDocument>({
       type: String,
       trim: true
     }
-  }]
+  }],
+  // Public portfolio approval fields
+  approvalStatus: { 
+    type: String, 
+    enum: ['not_requested', 'pending', 'approved', 'rejected'],
+    default: 'not_requested'
+  },
+  approvalRequest: { type: Schema.Types.ObjectId, ref: 'ApprovalRequest' },
+  approvedAt: { type: Date },
+  approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  isPubliclyVisible: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

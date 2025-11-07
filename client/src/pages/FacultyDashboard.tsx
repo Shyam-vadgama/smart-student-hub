@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-=======
 import React, { useState, useEffect } from 'react';
 import socket from '@/lib/socket';
->>>>>>> df1c5ed (added github interation)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { User, Subject, Student } from '@shared/schema';
@@ -24,8 +20,6 @@ const FacultyDashboard: React.FC = () => {
   const [attendanceDate, setAttendanceDate] = useState('');
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
-<<<<<<< HEAD
-=======
   // Real-time update: refetch on socket events
   useEffect(() => {
     function handleAttendanceUpdate() {
@@ -41,7 +35,6 @@ const FacultyDashboard: React.FC = () => {
     };
   }, [queryClient]);
 
->>>>>>> df1c5ed (added github interation)
   // Subjects fetch karne ka code
   const { data: subjects, isLoading: subjectsLoading, error: subjectsError } = useQuery<Subject[]>({
     queryKey: ['/api/subjects/faculty', user?._id],

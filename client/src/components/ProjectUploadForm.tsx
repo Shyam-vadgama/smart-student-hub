@@ -49,13 +49,29 @@ const ProjectUploadForm: React.FC<ProjectUploadFormProps> = ({ open, onClose }) 
     enabled: open
   });
 
+  // Check integration status
+  const { data: integrationStatus } = useQuery({
+    queryKey: ['/api/integrations/status'],
+    queryFn: () => apiRequest('GET', '/api/integrations/status').then(res => res.json()),
+    enabled: open
+  });
+
   const createProjectMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return apiRequest('POST', '/api/projects/create', data);
+      const response = await apiRequest('POST', '/api/projects/create', data);
+      return response.json();
     },
-    onSuccess: () => {
-      toast({ title: 'Project uploaded successfully!' });
+    onSuccess: (data) => {
+      if (data.autoDeploying) {
+        toast({ 
+          title: '🚀 Project uploaded and deploying!', 
+          description: 'Your code is being pushed to GitHub. Refresh in a moment to see the status.' 
+        });
+      } else {
+        toast({ title: '✅ Project uploaded successfully!' });
+      }
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects/user'] });
       onClose();
       resetForm();
     },
@@ -307,6 +323,35 @@ const ProjectUploadForm: React.FC<ProjectUploadFormProps> = ({ open, onClose }) 
             </div>
           </div>
 
+          {/* Project Files (ZIP) */}
+          <div>
+            <Label htmlFor="projectFiles">
+              Project Files (ZIP) {formData.deploymentType === 'Portfolio + Deploy' && '*'}
+            </Label>
+            <Input
+              id="projectFiles"
+              type="file"
+              accept=".zip"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setProjectFiles(file);
+                }
+              }}
+              className="mt-2"
+            />
+            {projectFiles && (
+              <p className="text-sm text-gray-600 mt-1">
+                Selected: {projectFiles.name} ({(projectFiles.size / 1024 / 1024).toFixed(2)} MB)
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.deploymentType === 'Portfolio + Deploy' 
+                ? 'Required for deployment - Upload your project as a ZIP file'
+                : 'Optional - Upload your project as a ZIP file for future deployment'}
+            </p>
+          </div>
+
           {/* Screenshots */}
           <div>
             <Label>Screenshots (Max 5)</Label>
@@ -366,10 +411,23 @@ const ProjectUploadForm: React.FC<ProjectUploadFormProps> = ({ open, onClose }) 
                 variant={formData.deploymentType === 'Portfolio + Deploy' ? 'default' : 'outline'}
                 onClick={() => setFormData({ ...formData, deploymentType: 'Portfolio + Deploy' })}
                 className="flex-1"
+                disabled={!integrationStatus?.integrations?.github?.connected}
               >
                 🔵 Add to Portfolio + Deploy
               </Button>
             </div>
+            {formData.deploymentType === 'Portfolio + Deploy' && !integrationStatus?.integrations?.github?.connected && (
+              <p className="text-sm text-orange-600 mt-2">
+                ⚠️ Connect GitHub in Settings to enable deployment
+              </p>
+            )}
+            {formData.deploymentType === 'Portfolio + Deploy' && 
+             integrationStatus?.integrations?.github?.connected && 
+             !integrationStatus?.integrations?.vercel?.connected && (
+              <p className="text-sm text-blue-600 mt-2">
+                ℹ️ GitHub connected! Optionally connect Vercel for automatic hosting.
+              </p>
+            )}
           </div>
 
           <DialogFooter>

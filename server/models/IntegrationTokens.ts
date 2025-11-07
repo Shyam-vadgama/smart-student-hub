@@ -1,13 +1,19 @@
 import { Schema, model, Document } from 'mongoose';
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'your-32-character-secret-key!!'; // Must be 32 chars
+// Generate a proper 32-byte encryption key
+const getEncryptionKey = (): Buffer => {
+  const key = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-me';
+  // Create a 32-byte key using SHA-256 hash
+  return crypto.createHash('sha256').update(key).digest();
+};
+
 const ALGORITHM = 'aes-256-cbc';
 
 // Encryption helper functions
 function encrypt(text: string): string {
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.slice(0, 32)), iv);
+  const cipher = crypto.createCipheriv(ALGORITHM, getEncryptionKey(), iv);
   let encrypted = cipher.update(text);
   encrypted = Buffer.concat([encrypted, cipher.final()]);
   return iv.toString('hex') + ':' + encrypted.toString('hex');
@@ -17,7 +23,7 @@ function decrypt(text: string): string {
   const textParts = text.split(':');
   const iv = Buffer.from(textParts.shift()!, 'hex');
   const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-  const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.slice(0, 32)), iv);
+  const decipher = crypto.createDecipheriv(ALGORITHM, getEncryptionKey(), iv);
   let decrypted = decipher.update(encryptedText);
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
